@@ -4,8 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FAT Ball</title>
+<meta name="theme-color" content="#080b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FAT Ball">
 <link rel="icon" type="image/webp" href="logo-15ball.webp">
 <link rel="apple-touch-icon" href="logo-15ball.webp">
+<link rel="manifest" href="manifest.webmanifest">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   [data-theme="dark"] {
@@ -123,6 +128,9 @@
     gap: 12px;
     margin-bottom: 26px;
   }
+  .is-hidden {
+    display: none !important;
+  }
   .scoreboard-group {
     width: 100%;
     border: 1px dashed rgba(0,170,238,0.22);
@@ -148,7 +156,7 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 18px 16px 16px;
+    padding: 0 16px 16px;
     position: relative;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
@@ -185,24 +193,29 @@
   }
   .player-name {
     font-family: 'Orbitron', monospace;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 900;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
+    letter-spacing: 1.4px;
+    margin: 0 -16px 14px;
+    padding: 12px 14px;
+    color: #fff;
+    line-height: 1;
+    width: calc(100% + 32px);
   }
-  .f .player-name { color: var(--f-color); }
-  .a .player-name { color: var(--a-color); }
-  .t .player-name { color: var(--t-color); }
+  .f .player-name { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+  .a .player-name { background: linear-gradient(135deg, #0ea5e9, #0369a1); }
+  .t .player-name { background: linear-gradient(135deg, #a855f7, #7e22ce); }
   .player-status-icon {
-    min-height: 42px;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 6px;
+    margin-bottom: 0;
+    order: 3;
   }
   .ball-icon {
-    width: 58px;
-    height: 58px;
+    width: 44px;
+    height: 44px;
     display: block;
     object-fit: contain;
     filter: drop-shadow(0 8px 18px rgba(0,0,0,0.16));
@@ -237,11 +250,12 @@
   }
   .player-score {
     font-family: 'Orbitron', monospace;
-    font-size: 30px;
+    font-size: 58px;
     font-weight: 900;
     color: var(--heading);
     line-height: 1.1;
-    margin-bottom: 6px;
+    margin: 4px 0 6px;
+    order: 2;
   }
   .player-desc {
     font-size: 11px;
@@ -824,7 +838,10 @@
     .choice-grid { grid-template-columns: repeat(2, 1fr); }
     .edit-grid { grid-template-columns: 1fr; gap: 8px; }
     .player-card { padding: 14px 10px 12px; }
-    .player-score { font-size: 24px; }
+    .player-card { padding-top: 0; }
+    .player-name { margin: 0 -10px 12px; width: calc(100% + 20px); }
+    .player-score { font-size: 42px; }
+    .ball-icon { width: 34px; height: 34px; }
     .history-table.compact { min-width: 0; }
     .history-table { min-width: 560px; }
     .rhadzor-footer-wrap { margin-bottom: -28px; }
@@ -908,16 +925,40 @@
       margin-bottom: 10px;
     }
     .container > .panel:first-of-type .ball-icon {
-      width: min(19vw, 84px);
-      height: min(19vw, 84px);
+      width: min(22vw, 110px);
+      height: min(22vw, 110px);
     }
     .container > .panel:first-of-type .player-name {
-      font-size: clamp(13px, 2.2vw, 18px);
-      margin-bottom: 12px;
+      font-size: clamp(16px, 2.8vw, 24px);
+      margin-bottom: 16px;
+      margin-left: -8px;
+      margin-right: -8px;
+      width: calc(100% + 16px);
+      padding: 12px 16px;
     }
     .container > .panel:first-of-type .player-score {
-      font-size: clamp(34px, 7vw, 62px);
+      font-size: clamp(52px, 9vw, 88px);
       margin-bottom: 0;
+    }
+    .container > .panel:first-of-type .ball-icon {
+      width: min(12vw, 60px);
+      height: min(12vw, 60px);
+    }
+  }
+  @media (max-width: 920px) and (orientation: landscape) {
+    :root,
+    html[data-theme="light"],
+    html[data-theme="dark"] {
+      --bg: #080b14;
+      --card: #0f1524;
+      --card2: #141c30;
+      --border: #1e2d4d;
+      --text: #c8d6ef;
+      --muted: #5a6a8a;
+      --heading: #ffffff;
+      --row-hover: rgba(255,255,255,0.02);
+      --shadow: rgba(0,0,0,0.4);
+      --grid-line: rgba(0,198,255,0.03);
     }
   }
 </style>
@@ -1080,10 +1121,10 @@
   <div class="toast" id="toast"></div>
 
 <script>
-  const MATCHES_KEY = 'fat_ball_matches_v2';
-  const ACTIVE_TABLE_KEY = 'fat_ball_active_table_v2';
+  const MATCHES_KEY = 'fat_ball_matches_v3';
+  const ACTIVE_TABLE_KEY = 'fat_ball_active_table_v3';
   const THEME_KEY = 'fat_ball_theme_v2';
-  const NEXT_PAYER_KEY = 'fat_ball_next_payer_v1';
+  const NEXT_PAYER_KEY = 'fat_ball_next_payer_v2';
   const PLAYERS = {
     F: { name: 'F', cls: 'f', color: 'var(--f-color)' },
     A: { name: 'A', cls: 'a', color: 'var(--a-color)' },
@@ -1349,6 +1390,7 @@
     saveNextPayer();
     activeTable = null;
     saveActiveTable();
+    document.getElementById('tableDate').value = todayValue();
     closeCloseTableModal();
     renderAll();
     showToast('Table ditutup dan score disimpan.');
@@ -1487,10 +1529,20 @@
   }
 
   function renderScoreboard() {
+    const scoreboardEl = document.getElementById('scoreboard');
+    const summaryEl = document.querySelector('.table-summary');
+    if (!activeTable) {
+      scoreboardEl.innerHTML = '';
+      scoreboardEl.classList.add('is-hidden');
+      summaryEl?.classList.add('is-hidden');
+      return;
+    }
+    scoreboardEl.classList.remove('is-hidden');
+    summaryEl?.classList.remove('is-hidden');
     const current = activeTable || { F: 0, A: 0, T: 0 };
     const winner = winnerOf(current);
     const total = current.F + current.A + current.T;
-    document.getElementById('scoreboard').innerHTML = `
+    scoreboardEl.innerHTML = `
       <div class="scoreboard-group">
         <div class="scoreboard-heading">Score Pertandingan Hari Ini</div>
         <div class="scoreboard-main">
@@ -1530,6 +1582,7 @@
             <th>A</th>
             <th>T</th>
             ${historyExpanded ? '<th class="col-total">Total</th>' : ''}
+            ${historyExpanded ? '<th class="col-payer">Bayar</th>' : ''}
             <th class="col-actions">Aksi</th>
           </tr>
         </thead>
@@ -1546,6 +1599,7 @@
                 <td class="${winner === 'A' ? 'win-a' : ''}"><span class="score-chip">${match.A}</span></td>
                 <td class="${winner === 'T' ? 'win-t' : ''}"><span class="score-chip">${match.T}</span></td>
                 ${historyExpanded ? `<td class="col-total">${totalGames}</td>` : ''}
+                ${historyExpanded ? `<td class="col-payer">${match.payer || '-'}</td>` : ''}
                 <td class="col-actions">
                   <div class="actions">
                     <button class="icon-btn" type="button" onclick="openEdit(${actualIndex})" title="Edit">✎</button>
@@ -1566,7 +1620,7 @@
     if (!activeTable) {
       tableDateInput.value = tableDateInput.value || todayValue();
       document.getElementById('activeDateLabel').textContent = 'Belum ada meja aktif';
-      document.getElementById('tableStatus').textContent = 'Belum ada meja aktif.';
+      document.getElementById('tableStatus').textContent = '';
       toggleBtn.textContent = 'Open Table';
       return;
     }
@@ -1773,6 +1827,12 @@
   document.getElementById('tableDate').value = activeTable?.date || todayValue();
   renderAll();
   initFooterStars();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    });
+  }
 
   window.incrementScore = incrementScore;
   window.openEdit = openEdit;
