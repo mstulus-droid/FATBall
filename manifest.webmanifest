@@ -2,7 +2,8 @@
   "name": "FAT Ball",
   "short_name": "FAT Ball",
   "description": "Papan skor dan riwayat pertandingan FAT Ball.",
-  "start_url": "./index.html",
+  "id": "./",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#080b14",
@@ -10,15 +11,15 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "./icon-192.svg",
+      "src": "./logo-15ball.webp",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "./icon-512.svg",
+      "src": "./logo-15ball.webp",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "any"
     }
   ]
