@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAT Ball</title>
+<link rel="icon" type="image/webp" href="logo-15ball.webp">
+<link rel="apple-touch-icon" href="logo-15ball.webp">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  [data-theme="dark"] {
+    --bg: #080b14;
+    --card: #0f1524;
+    --card2: #141c30;
+    --border: #1e2d4d;
+    --text: #c8d6ef;
+    --muted: #5a6a8a;
+    --heading: #ffffff;
+    --row-hover: rgba(255,255,255,0.02);
+    --shadow: rgba(0,0,0,0.4);
+    --grid-line: rgba(0,198,255,0.03);
+  }
+  [data-theme="light"] {
+    --bg: #eef1f8;
+    --card: #ffffff;
+    --card2: #f4f6fc;
+    --border: #dde3f0;
+    --text: #3a4668;
+    --muted: #8a96b8;
+    --heading: #111827;
+    --row-hover: rgba(0,0,0,0.02);
+    --shadow: rgba(60,80,140,0.07);
+    --grid-line: rgba(60,100,200,0.04);
+  }
+  :root {
+    --accent: #16a34a;
+    --cyan: #00aaee;
+    --f-color: #ef4444;
+    --a-color: #0ea5e9;
+    --t-color: #a855f7;
+    --gold: #f4c542;
+    --win: #22c55e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    width: auto;
+    height: 52px;
+    display: block;
+    max-width: 84px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .header-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .header-text h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--heading);
+  }
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .theme-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .theme-btn:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  .scoreboard {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+  .scoreboard-group {
+    width: 100%;
+    border: 1px dashed rgba(0,170,238,0.22);
+    border-radius: 20px;
+    padding: 12px;
+    background: linear-gradient(180deg, rgba(0,170,238,0.03), transparent);
+  }
+  .scoreboard-heading {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--heading);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .scoreboard-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .player-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 16px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+    box-shadow: 0 2px 12px var(--shadow);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .player-card.f::before { background: linear-gradient(90deg, var(--f-color), transparent); }
+  .player-card.a::before { background: linear-gradient(90deg, var(--a-color), transparent); }
+  .player-card.t::before { background: linear-gradient(90deg, var(--t-color), transparent); }
+  .player-card:hover { transform: translateY(-2px); }
+  .player-card.clickable { cursor: pointer; }
+  .player-card.clickable.f:hover { box-shadow: 0 8px 32px rgba(239,68,68,0.12); }
+  .player-card.clickable.a:hover { box-shadow: 0 8px 32px rgba(14,165,233,0.12); }
+  .player-card.clickable.t:hover { box-shadow: 0 8px 32px rgba(168,85,247,0.12); }
+  .player-card.winner-state {
+    background:
+      radial-gradient(circle at top, rgba(255,221,87,0.22), transparent 36%),
+      linear-gradient(180deg, rgba(255,252,233,0.95), rgba(255,243,196,0.72)),
+      var(--card);
+    border-color: rgba(255,196,0,0.45);
+    box-shadow: 0 12px 30px rgba(255,196,0,0.18);
+  }
+  .player-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .f .player-name { color: var(--f-color); }
+  .a .player-name { color: var(--a-color); }
+  .t .player-name { color: var(--t-color); }
+  .player-status-icon {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  .ball-icon {
+    width: 58px;
+    height: 58px;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 18px rgba(0,0,0,0.16));
+  }
+  .winner-badge {
+    position: relative;
+    width: 56px;
+    height: 42px;
+    margin: 0 auto 0;
+  }
+  .winner-badge::before {
+    content: '👑';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    filter: drop-shadow(0 0 10px rgba(255,196,0,0.45));
+  }
+  .player-card.winner-state .player-status-icon {
+    position: relative;
+  }
+  .player-card.winner-state .player-status-icon::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,196,0,0.35);
+    box-shadow: 0 0 0 4px rgba(255,196,0,0.08);
+    pointer-events: none;
+  }
+  .player-score {
+    font-family: 'Orbitron', monospace;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--heading);
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .player-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 2px 12px var(--shadow);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .panel-body {
+    padding: 18px 16px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--heading);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(22,163,74,0.35);
+  }
+  .section-meta {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .table-controls {
+    display: grid;
+    grid-template-columns: 180px 180px;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 14px;
+  }
+  .table-controls > * {
+    width: 100%;
+  }
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  input[type="date"], select {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--heading);
+    padding: 12px 14px;
+    font: inherit;
+    outline: none;
+  }
+  .btn {
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--heading);
+    font: inherit;
+    padding: 11px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, rgba(0,170,238,0.14), rgba(22,163,74,0.16));
+    border-color: rgba(0,170,238,0.24);
+  }
+  .btn-danger {
+    color: #ef4444;
+  }
+  .table-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .history-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 620px;
+  }
+  .history-table thead tr {
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+  .history-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .history-table tbody tr:last-child { border-bottom: none; }
+  .history-table tbody tr:hover { background: var(--row-hover); }
+  .history-table th,
+  .history-table td {
+    padding: 11px 14px;
+    font-size: 13px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .history-table th {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .history-table td.date-col {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .history-table td.winner-col {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .history-table td.win-f .score-chip {
+    color: #fff;
+    background: rgba(239,68,68,0.92);
+    border-color: rgba(239,68,68,0.92);
+  }
+  .history-table td.win-a .score-chip {
+    color: #fff;
+    background: rgba(14,165,233,0.92);
+    border-color: rgba(14,165,233,0.92);
+  }
+  .history-table td.win-t .score-chip {
+    color: #fff;
+    background: rgba(168,85,247,0.92);
+    border-color: rgba(168,85,247,0.92);
+  }
+  .score-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    font-weight: 700;
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--muted);
+    font-family: 'Orbitron', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+  .history-toggle {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--muted);
+    font-family: 'Orbitron', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .history-toggle:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+  .history-table.compact .col-num,
+  .history-table.compact .col-actions {
+    display: none;
+  }
+  .history-table.compact {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+  .history-table.compact th,
+  .history-table.compact td {
+    padding: 10px 6px;
+  }
+  .history-table.compact th {
+    font-size: 10px;
+  }
+  .history-table.compact td.date-col {
+    font-size: 10px;
+    white-space: normal;
+    line-height: 1.2;
+    width: 34%;
+  }
+  .history-table.compact .score-chip {
+    min-width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  .empty-state {
+    padding: 20px 16px;
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(0,170,238,0.03), transparent);
+    color: var(--muted);
+    text-align: center;
+    font-size: 13px;
+  }
+  .rhadzor-footer-wrap {
+    margin-top: 24px;
+    margin-bottom: -24px;
+  }
+  .rhadzor-footer {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    border-radius: 0;
+    border: 1px solid rgba(148,163,184,0.18);
+    padding: 6px 4px;
+    min-height: 56px;
+    background:
+      radial-gradient(circle at 50% -18%, rgba(147,197,253,0.18), transparent 34%),
+      radial-gradient(circle at 18% 18%, rgba(255,255,255,0.06), transparent 26%),
+      linear-gradient(180deg, #08111f 0%, #0f172a 52%, #111827 100%);
+    box-shadow: 0 20px 42px rgba(2,6,23,0.34);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .rhadzor-footer:hover {
+    border-color: rgba(147,197,253,0.3);
+    box-shadow: 0 24px 50px rgba(2,6,23,0.42);
+  }
+  .rhadzor-footer-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .rhadzor-footer-content {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    text-align: center;
+    width: 100%;
+    padding: 0 16px;
+  }
+  .rhadzor-footer-kicker {
+    font-size: 10px;
+    letter-spacing: 2.1px;
+    text-transform: uppercase;
+    color: rgba(226,232,240,0.66);
+    line-height: 1;
+    margin: 0;
+  }
+  .rhadzor-footer-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.15px;
+    line-height: 1.02;
+    text-shadow: 0 0 18px rgba(147,197,253,0.08);
+    margin: 0;
+  }
+  .rhadzor-footer-title span {
+    color: #7dd3fc;
+  }
+  .rhadzor-footer-glow {
+    position: absolute;
+    inset: auto auto -34px 50%;
+    width: 220px;
+    height: 92px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(56,189,248,0.24), transparent 68%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(16px);
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(17,24,39,0.94);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 999px;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.24);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 40;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 30;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    width: min(560px, 100%);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: 0 28px 60px rgba(0,0,0,0.3);
+    padding: 20px;
+  }
+  .modal-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    color: var(--heading);
+    margin-bottom: 8px;
+  }
+  .modal-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .ball-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .ball-option-group {
+    display: grid;
+    gap: 10px;
+  }
+  .ball-option-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+  }
+  .ball-choice-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .ball-choice {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card2);
+    padding: 10px 8px;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+  .ball-choice:hover {
+    transform: translateY(-1px);
+    border-color: var(--cyan);
+  }
+  .ball-choice.selected {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(0,170,238,0.12);
+  }
+  .ball-choice.empty {
+    opacity: 0.78;
+    filter: grayscale(1);
+  }
+  .ball-choice.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .ball-choice img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+  }
+  .ball-choice span {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .close-center {
+    text-align: center;
+  }
+  .winner-display {
+    margin: 4px 0 18px;
+    display: flex;
+    justify-content: center;
+  }
+  .winner-frame {
+    min-width: 220px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,196,0,0.45);
+    background:
+      radial-gradient(circle at top, rgba(255,221,87,0.22), transparent 36%),
+      linear-gradient(180deg, rgba(255,252,233,0.95), rgba(255,243,196,0.72)),
+      var(--card);
+    box-shadow: 0 12px 30px rgba(255,196,0,0.18);
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .winner-frame.draw {
+    border-color: var(--border);
+    background: var(--card2);
+    box-shadow: 0 8px 24px var(--shadow);
+  }
+  .winner-frame-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .winner-frame-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--heading);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .winner-frame-note {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .payer-summary {
+    margin: 8px 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .payer-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--heading);
+  }
+  .payer-head {
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .payer-edit-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .payer-edit-btn:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+  .payer-choice-wrap {
+    display: none;
+  }
+  .payer-choice-wrap.open {
+    display: block;
+  }
+  .modal-actions-center {
+    justify-content: center !important;
+    margin-top: 10px;
+  }
+  .choice-btn {
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--heading);
+    border-radius: 14px;
+    padding: 11px 8px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .choice-btn.selected {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(0,170,238,0.12);
+    color: var(--cyan);
+  }
+  .edit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 760px) {
+    .table-controls {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .container { padding: 18px 12px 34px; }
+    .header {
+      gap: 12px;
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+    }
+    .header-text h1 { font-size: 19px; }
+    .logo { height: 44px; max-width: 72px; }
+    .scoreboard-main { gap: 8px; }
+    .table-controls { grid-template-columns: 1fr 1fr; }
+    .ball-picker-grid { grid-template-columns: 1fr; }
+    .choice-grid { grid-template-columns: repeat(2, 1fr); }
+    .edit-grid { grid-template-columns: 1fr; gap: 8px; }
+    .player-card { padding: 14px 10px 12px; }
+    .player-score { font-size: 24px; }
+    .history-table.compact { min-width: 0; }
+    .history-table { min-width: 560px; }
+    .rhadzor-footer-wrap { margin-bottom: -28px; }
+    .rhadzor-footer { width: calc(100% + 24px); margin-left: -12px; margin-right: -12px; min-height: 54px; padding: 6px 4px; border-radius: 0; }
+    .rhadzor-footer-title { font-size: 21px; }
+    .rhadzor-footer-kicker { font-size: 9px; letter-spacing: 2.4px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img class="logo" src="logo-15ball.webp" alt="FAT Ball">
+      <div class="header-text">
+        <h1>FAT Ball</h1>
+      </div>
+      <div class="header-right">
+        <button class="theme-btn" id="themeToggle" type="button">Mode Gelap</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-body">
+        <div class="panel-head">
+          <div class="section-title">Meja Aktif</div>
+          <div class="section-meta" id="activeDateLabel">Tanggal belum dipilih</div>
+        </div>
+
+        <div class="table-controls">
+          <button class="btn btn-primary" type="button" id="tableToggleBtn">Open Table</button>
+          <div class="field">
+            <input type="date" id="tableDate">
+          </div>
+        </div>
+
+        <div class="scoreboard" id="scoreboard"></div>
+
+        <div class="table-summary">
+          <div id="tableStatus">Belum ada meja aktif.</div>
+          <button class="btn btn-danger" type="button" id="resetTableBtn">Reset Score Aktif</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-body">
+        <div class="panel-head">
+          <div class="section-title">Riwayat Match</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="section-meta" id="matchCountMeta">0 Matches</div>
+            <button class="history-toggle" id="historyToggleBtn" type="button" title="Expand riwayat">›</button>
+          </div>
+        </div>
+        <div class="history-wrap" id="historyWrap"></div>
+      </div>
+    </section>
+
+    <div class="rhadzor-footer-wrap">
+      <a class="rhadzor-footer" href="https://rhadzor.id" target="_blank" rel="noopener noreferrer">
+        <canvas class="rhadzor-footer-canvas" id="rhadzor-footer-canvas" aria-hidden="true"></canvas>
+        <div class="rhadzor-footer-glow"></div>
+        <div class="rhadzor-footer-content">
+          <div class="rhadzor-footer-kicker">Powered By</div>
+          <div class="rhadzor-footer-title">Rhadzor<span>.id</span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="editModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+      <div class="modal-title" id="editModalTitle">Edit Riwayat</div>
+      <div class="modal-note">Perbarui tanggal dan skor F, A, T untuk match ini.</div>
+      <div class="field" style="margin-bottom:14px;">
+        <label for="editDate">Tanggal Main</label>
+        <input type="date" id="editDate">
+      </div>
+      <div class="edit-grid">
+        <div class="field">
+          <label for="editF">Score F</label>
+          <input type="number" id="editF" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="editA">Score A</label>
+          <input type="number" id="editA" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="editT">Score T</label>
+          <input type="number" id="editT" min="0" step="1">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label for="editResult">Hasil</label>
+        <select id="editResult">
+          <option value="F">Juara F</option>
+          <option value="A">Juara A</option>
+          <option value="T">Juara T</option>
+          <option value="DRAW">Imbang</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label for="editPayer">Yang Bayar</label>
+        <select id="editPayer">
+          <option value="F">F</option>
+          <option value="A">A</option>
+          <option value="T">T</option>
+        </select>
+      </div>
+      <div class="actions" style="justify-content:flex-end;">
+        <button class="btn" type="button" id="cancelEditBtn">Batal</button>
+        <button class="btn btn-primary" type="button" id="saveEditBtn">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="openTableModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="openTableModalTitle">
+      <div class="modal-title" id="openTableModalTitle">Open Table</div>
+      <div class="modal-note">Pilih jenis bola untuk F, A, dan T sebelum mulai hitung score.</div>
+      <div class="ball-picker-grid">
+        <div class="ball-option-group">
+          <label>F</label>
+          <div class="ball-choice-list" id="ballChoicesF"></div>
+        </div>
+        <div class="ball-option-group">
+          <label>A</label>
+          <div class="ball-choice-list" id="ballChoicesA"></div>
+        </div>
+        <div class="ball-option-group">
+          <label>T</label>
+          <div class="ball-choice-list" id="ballChoicesT"></div>
+        </div>
+      </div>
+      <div class="actions" style="justify-content:flex-end;">
+        <button class="btn" type="button" id="cancelOpenTableBtn">Batal</button>
+        <button class="btn btn-primary" type="button" id="confirmOpenTableBtn">Mulai</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="closeTableModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="closeTableModalTitle">
+      <div class="close-center">
+        <div class="modal-title" id="closeTableModalTitle">Close Table</div>
+        <div class="modal-note">Tentukan hasil akhir dan siapa yang bayar untuk match ini.</div>
+        <div class="winner-display" id="winnerDisplay"></div>
+        <div class="payer-head">
+          <div class="modal-note" style="margin-bottom:0;">Yang bayar hari ini</div>
+          <button class="payer-edit-btn" id="togglePayerEditBtn" type="button" title="Ubah yang bayar">✎</button>
+        </div>
+        <div class="payer-summary">
+          <div class="payer-pill" id="payerCurrentLabel">F</div>
+        </div>
+        <div class="payer-choice-wrap" id="payerChoiceWrap">
+          <div class="choice-grid" id="payerChoiceGrid"></div>
+        </div>
+      </div>
+      <div class="actions modal-actions-center">
+        <button class="btn" type="button" id="cancelCloseTableBtn">Batal</button>
+        <button class="btn btn-primary" type="button" id="confirmCloseTableBtn">Simpan Match</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const MATCHES_KEY = 'fat_ball_matches_v2';
+  const ACTIVE_TABLE_KEY = 'fat_ball_active_table_v2';
+  const THEME_KEY = 'fat_ball_theme_v2';
+  const NEXT_PAYER_KEY = 'fat_ball_next_payer_v1';
+  const PLAYERS = {
+    F: { name: 'F', cls: 'f', color: 'var(--f-color)' },
+    A: { name: 'A', cls: 'a', color: 'var(--a-color)' },
+    T: { name: 'T', cls: 't', color: 'var(--t-color)' }
+  };
+  const BALL_TYPES = {
+    small: { label: 'Bola 5', shortLabel: 'Kecil', number: '5', className: 'small' },
+    medium: { label: 'Bola 10', shortLabel: 'Tengah', number: '10', className: 'medium' },
+    large: { label: 'Bola 15', shortLabel: 'Besar', number: '15', className: 'large' }
+  };
+  let pendingBallTypes = { F: '', A: '', T: '' };
+  let closeResultChoice = '';
+  let closePayerChoice = 'F';
+  let nextPayer = loadNextPayer();
+  let payerEditOpen = false;
+
+  let matches = loadMatches();
+  let activeTable = loadActiveTable();
+  let editingId = null;
+  let historyExpanded = false;
+  let footerStarsState = null;
+
+  function todayValue() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function normalizeDate(value) {
+    if (!value) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function formatDate(value) {
+    if (!value) return '-';
+    const date = new Date(value + 'T00:00:00');
+    if (Number.isNaN(date.getTime())) return value;
+    const days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+    const months = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'agu', 'sep', 'okt', 'nov', 'des'];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = String(date.getFullYear()).slice(-2);
+    return dayName + ', ' + day + ' ' + month + ' ' + year;
+  }
+
+  function winnerOf(match) {
+    if (match && typeof match === 'object' && 'result' in match) {
+      return ['F', 'A', 'T'].includes(match.result) ? match.result : '';
+    }
+    const entries = [
+      ['F', Number(match.F) || 0],
+      ['A', Number(match.A) || 0],
+      ['T', Number(match.T) || 0]
+    ];
+    const max = Math.max(...entries.map(item => item[1]));
+    const leaders = entries.filter(item => item[1] === max && max > 0).map(item => item[0]);
+    if (!leaders.length || leaders.length !== 1) return '';
+    return leaders[0];
+  }
+
+  function loadMatches() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(MATCHES_KEY) || '[]');
+      if (!Array.isArray(raw)) return [];
+      return raw.map(item => ({
+        id: Number(item.id) || Date.now(),
+        date: normalizeDate(item.date),
+        F: Number(item.F) || 0,
+        A: Number(item.A) || 0,
+        T: Number(item.T) || 0,
+        result: ['F', 'A', 'T', 'DRAW'].includes(item.result) ? item.result : (winnerOf(item) || 'DRAW'),
+        payer: ['F', 'A', 'T'].includes(item.payer) ? item.payer : 'F'
+      })).filter(item => item.date).sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+    } catch {
+      return [];
+    }
+  }
+
+  function saveMatches() {
+    localStorage.setItem(MATCHES_KEY, JSON.stringify(matches));
+  }
+
+  function loadNextPayer() {
+    const raw = localStorage.getItem(NEXT_PAYER_KEY) || 'F';
+    return ['F', 'A', 'T'].includes(raw) ? raw : 'F';
+  }
+
+  function saveNextPayer() {
+    localStorage.setItem(NEXT_PAYER_KEY, nextPayer);
+  }
+
+  function nextPlayerAfter(playerKey) {
+    const order = ['F', 'A', 'T'];
+    const index = order.indexOf(playerKey);
+    return order[(index + 1) % order.length];
+  }
+
+  function loadActiveTable() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(ACTIVE_TABLE_KEY) || 'null');
+      if (!raw) return null;
+      return {
+        date: normalizeDate(raw.date) || todayValue(),
+        F: Number(raw.F) || 0,
+        A: Number(raw.A) || 0,
+        T: Number(raw.T) || 0,
+        ballTypes: {
+          F: BALL_TYPES[raw?.ballTypes?.F] ? raw.ballTypes.F : 'small',
+          A: BALL_TYPES[raw?.ballTypes?.A] ? raw.ballTypes.A : 'medium',
+          T: BALL_TYPES[raw?.ballTypes?.T] ? raw.ballTypes.T : 'large'
+        }
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function saveActiveTable() {
+    if (!activeTable) {
+      localStorage.removeItem(ACTIVE_TABLE_KEY);
+      return;
+    }
+    localStorage.setItem(ACTIVE_TABLE_KEY, JSON.stringify(activeTable));
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function getMatchWinCounts() {
+    return matches.reduce((acc, match) => {
+      const winner = winnerOf(match);
+      if (winner === 'F' || winner === 'A' || winner === 'T') acc[winner] += 1;
+      return acc;
+    }, { F: 0, A: 0, T: 0 });
+  }
+
+  function incrementScore(playerKey) {
+    if (!activeTable) {
+      openTableSetup();
+      showToast('Open Table dulu sebelum hitung score.');
+      return;
+    }
+    activeTable[playerKey] += 1;
+    activeTable.date = document.getElementById('tableDate').value || activeTable.date || todayValue();
+    saveActiveTable();
+    renderAll();
+  }
+
+  function openTableSetup() {
+    if (activeTable) {
+      const hasScore = activeTable.F || activeTable.A || activeTable.T;
+      if (hasScore && !confirm('Meja aktif masih punya score. Buat meja baru dan reset score aktif?')) return;
+    }
+    pendingBallTypes = {
+      F: activeTable?.ballTypes?.F || '',
+      A: activeTable?.ballTypes?.A || '',
+      T: activeTable?.ballTypes?.T || ''
+    };
+    renderBallPicker();
+    document.getElementById('openTableModalBackdrop').classList.add('open');
+    document.getElementById('openTableModalBackdrop').setAttribute('aria-hidden', 'false');
+  }
+
+  function closeOpenTableModal() {
+    document.getElementById('openTableModalBackdrop').classList.remove('open');
+    document.getElementById('openTableModalBackdrop').setAttribute('aria-hidden', 'true');
+  }
+
+  function startNewTable() {
+    const date = document.getElementById('tableDate').value || todayValue();
+    const picks = Object.values(pendingBallTypes);
+    if (picks.some(value => !value) || new Set(picks).size !== 3) {
+      showToast('Pilihan bola F, A, T tidak boleh sama.');
+      return;
+    }
+    activeTable = {
+      date,
+      F: 0,
+      A: 0,
+      T: 0,
+      ballTypes: {
+        F: pendingBallTypes.F,
+        A: pendingBallTypes.A,
+        T: pendingBallTypes.T
+      }
+    };
+    document.getElementById('tableDate').value = date;
+    saveActiveTable();
+    closeOpenTableModal();
+    renderAll();
+    showToast('Table dibuka.');
+  }
+
+  function resetActiveTable() {
+    if (!activeTable) {
+      showToast('Belum ada meja aktif.');
+      return;
+    }
+    if (!confirm('Reset semua score di meja aktif?')) return;
+    activeTable.F = 0;
+    activeTable.A = 0;
+    activeTable.T = 0;
+    saveActiveTable();
+    renderAll();
+    showToast('Score aktif direset.');
+  }
+
+  function openCloseTableModal() {
+    if (!activeTable) {
+      showToast('Belum ada meja aktif.');
+      return;
+    }
+    const total = activeTable.F + activeTable.A + activeTable.T;
+    if (!total) {
+      showToast('Score masih 0 semua.');
+      return;
+    }
+    closeResultChoice = winnerOf({
+      F: activeTable.F,
+      A: activeTable.A,
+      T: activeTable.T
+    }) || 'DRAW';
+    closePayerChoice = nextPayer;
+    payerEditOpen = false;
+    renderCloseTableChoices();
+    document.getElementById('closeTableModalBackdrop').classList.add('open');
+    document.getElementById('closeTableModalBackdrop').setAttribute('aria-hidden', 'false');
+  }
+
+  function closeCloseTableModal() {
+    payerEditOpen = false;
+    document.getElementById('closeTableModalBackdrop').classList.remove('open');
+    document.getElementById('closeTableModalBackdrop').setAttribute('aria-hidden', 'true');
+  }
+
+  function saveClosedTable() {
+    matches.push({
+      id: Date.now(),
+      date: document.getElementById('tableDate').value || activeTable.date || todayValue(),
+      F: activeTable.F,
+      A: activeTable.A,
+      T: activeTable.T,
+      result: closeResultChoice || 'DRAW',
+      payer: closePayerChoice || nextPayer
+    });
+    matches.sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+    saveMatches();
+    nextPayer = nextPlayerAfter(closePayerChoice || nextPayer);
+    saveNextPayer();
+    activeTable = null;
+    saveActiveTable();
+    closeCloseTableModal();
+    renderAll();
+    showToast('Table ditutup dan score disimpan.');
+  }
+
+  function toggleTableState() {
+    if (activeTable) {
+      openCloseTableModal();
+      return;
+    }
+    openTableSetup();
+  }
+
+  function renderBallIcon(playerKey) {
+    const activeType = activeTable?.ballTypes?.[playerKey] || (playerKey === 'F' ? 'small' : playerKey === 'A' ? 'medium' : 'large');
+    const ball = BALL_TYPES[activeType];
+    return {
+      icon: `<img class="ball-icon" src="${ball.number}.webp" alt="${ball.label}">`,
+      label: ball.shortLabel
+    };
+  }
+
+  function selectBallType(playerKey, typeKey) {
+    if (pendingBallTypes[playerKey] === typeKey) {
+      pendingBallTypes[playerKey] = '';
+      renderBallPicker();
+      return;
+    }
+    const usedByOther = Object.entries(pendingBallTypes).some(([key, value]) => key !== playerKey && value === typeKey);
+    if (usedByOther) {
+      showToast('Bola itu sudah dipakai player lain.');
+      return;
+    }
+    pendingBallTypes[playerKey] = typeKey;
+    renderBallPicker();
+  }
+
+  function selectCloseResult(value) {
+    closeResultChoice = value;
+  }
+
+  function selectClosePayer(value) {
+    closePayerChoice = value;
+    payerEditOpen = false;
+    renderCloseTableChoices();
+  }
+
+  function togglePayerEdit() {
+    payerEditOpen = !payerEditOpen;
+    renderCloseTableChoices();
+  }
+
+  function renderBallPicker() {
+    const options = Object.entries(BALL_TYPES);
+    ['F', 'A', 'T'].forEach(playerKey => {
+      const root = document.getElementById('ballChoices' + playerKey);
+      if (!root) return;
+      root.innerHTML = options.map(([typeKey, config]) => {
+        const selected = pendingBallTypes[playerKey] === typeKey;
+        const disabled = Object.entries(pendingBallTypes).some(([key, value]) => key !== playerKey && value === typeKey);
+        return `
+          <button class="ball-choice ${selected ? 'selected' : ''} ${!selected && !pendingBallTypes[playerKey] ? 'empty' : ''} ${disabled ? 'disabled' : ''}" type="button" onclick="selectBallType('${playerKey}','${typeKey}')">
+            <img src="${config.number}.webp" alt="${config.label}">
+            <span>${config.number}</span>
+          </button>
+        `;
+      }).join('');
+    });
+  }
+
+  function renderCloseTableChoices() {
+    const payers = ['F', 'A', 'T'];
+    const winnerLabel = closeResultChoice === 'DRAW' ? 'Imbang' : closeResultChoice;
+    document.getElementById('winnerDisplay').innerHTML = `
+      <div class="winner-frame ${closeResultChoice === 'DRAW' ? 'draw' : ''}">
+        <div class="winner-frame-label">Hasil Match</div>
+        <div class="winner-frame-name">${winnerLabel}</div>
+        <div class="winner-frame-note">${closeResultChoice === 'DRAW' ? 'Tidak ada pemenang jelas' : 'Pemenang pertandingan hari ini'}</div>
+      </div>
+    `;
+    document.getElementById('payerCurrentLabel').textContent = closePayerChoice;
+    document.getElementById('payerChoiceWrap').classList.toggle('open', payerEditOpen);
+    document.getElementById('payerChoiceGrid').innerHTML = payers.map(item => `
+      <button class="choice-btn ${closePayerChoice === item ? 'selected' : ''}" type="button" onclick="selectClosePayer('${item}')">${item}</button>
+    `).join('');
+  }
+
+  function openEdit(index) {
+    const match = matches[index];
+    if (!match) return;
+    editingId = match.id;
+    document.getElementById('editDate').value = match.date;
+    document.getElementById('editF').value = match.F;
+    document.getElementById('editA').value = match.A;
+    document.getElementById('editT').value = match.T;
+    document.getElementById('editResult').value = match.result || 'DRAW';
+    document.getElementById('editPayer').value = match.payer || 'F';
+    document.getElementById('editModalBackdrop').classList.add('open');
+    document.getElementById('editModalBackdrop').setAttribute('aria-hidden', 'false');
+  }
+
+  function closeEdit() {
+    editingId = null;
+    document.getElementById('editModalBackdrop').classList.remove('open');
+    document.getElementById('editModalBackdrop').setAttribute('aria-hidden', 'true');
+  }
+
+  function saveEdit() {
+    if (!editingId) return;
+    const date = normalizeDate(document.getElementById('editDate').value);
+    const F = Math.max(0, Number(document.getElementById('editF').value) || 0);
+    const A = Math.max(0, Number(document.getElementById('editA').value) || 0);
+    const T = Math.max(0, Number(document.getElementById('editT').value) || 0);
+    const result = document.getElementById('editResult').value;
+    const payer = document.getElementById('editPayer').value;
+    if (!date) {
+      showToast('Tanggal match wajib diisi.');
+      return;
+    }
+    matches = matches.map(match => match.id === editingId ? { ...match, date, F, A, T, result, payer } : match);
+    matches.sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+    saveMatches();
+    closeEdit();
+    renderAll();
+    showToast('Riwayat berhasil diperbarui.');
+  }
+
+  function deleteMatch(index) {
+    const match = matches[index];
+    if (!match) return;
+    if (!confirm('Hapus riwayat ' + formatDate(match.date) + '?')) return;
+    matches.splice(index, 1);
+    saveMatches();
+    renderAll();
+    showToast('Riwayat dihapus.');
+  }
+
+  function renderScoreboard() {
+    const current = activeTable || { F: 0, A: 0, T: 0 };
+    const winner = winnerOf(current);
+    const total = current.F + current.A + current.T;
+    document.getElementById('scoreboard').innerHTML = `
+      <div class="scoreboard-group">
+        <div class="scoreboard-heading">Score Pertandingan Hari Ini</div>
+        <div class="scoreboard-main">
+          ${['F', 'A', 'T'].map(key => {
+            const player = PLAYERS[key];
+            const isWinner = winner === key && total > 0;
+            const ballInfo = renderBallIcon(key);
+            return `
+              <div class="player-card clickable ${player.cls} ${isWinner ? 'winner-state' : ''}" onclick="incrementScore('${key}')">
+                <div class="player-name">${player.name}</div>
+                <div class="player-status-icon">${ballInfo.icon}</div>
+                <div class="player-score">${current[key]}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderHistory() {
+    const wrap = document.getElementById('historyWrap');
+    document.getElementById('matchCountMeta').textContent = matches.length + (matches.length === 1 ? ' Match' : ' Matches');
+    document.getElementById('historyToggleBtn').textContent = historyExpanded ? '‹' : '›';
+    document.getElementById('historyToggleBtn').title = historyExpanded ? 'Ringkas riwayat' : 'Expand riwayat';
+    if (!matches.length) {
+      wrap.innerHTML = '<div class="empty-state">Belum ada riwayat match. Mainkan meja pertama lalu tutup meja untuk menyimpan score.</div>';
+      return;
+    }
+    wrap.innerHTML = `
+      <table class="history-table ${historyExpanded ? '' : 'compact'}">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th>Tanggal</th>
+            <th>F</th>
+            <th>A</th>
+            <th>T</th>
+            ${historyExpanded ? '<th class="col-total">Total</th>' : ''}
+            <th class="col-actions">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[...matches].reverse().map((match, index) => {
+            const actualIndex = matches.length - 1 - index;
+            const winner = winnerOf(match);
+            const totalGames = (Number(match.F) || 0) + (Number(match.A) || 0) + (Number(match.T) || 0);
+            return `
+              <tr>
+                <td class="col-num">${matches.length - index}</td>
+                <td class="date-col">${formatDate(match.date)}</td>
+                <td class="${winner === 'F' ? 'win-f' : ''}"><span class="score-chip">${match.F}</span></td>
+                <td class="${winner === 'A' ? 'win-a' : ''}"><span class="score-chip">${match.A}</span></td>
+                <td class="${winner === 'T' ? 'win-t' : ''}"><span class="score-chip">${match.T}</span></td>
+                ${historyExpanded ? `<td class="col-total">${totalGames}</td>` : ''}
+                <td class="col-actions">
+                  <div class="actions">
+                    <button class="icon-btn" type="button" onclick="openEdit(${actualIndex})" title="Edit">✎</button>
+                    <button class="icon-btn" type="button" onclick="deleteMatch(${actualIndex})" title="Hapus">✕</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderStatus() {
+    const tableDateInput = document.getElementById('tableDate');
+    const toggleBtn = document.getElementById('tableToggleBtn');
+    if (!activeTable) {
+      tableDateInput.value = tableDateInput.value || todayValue();
+      document.getElementById('activeDateLabel').textContent = 'Belum ada meja aktif';
+      document.getElementById('tableStatus').textContent = 'Belum ada meja aktif.';
+      toggleBtn.textContent = 'Open Table';
+      return;
+    }
+    tableDateInput.value = activeTable.date || todayValue();
+    document.getElementById('activeDateLabel').textContent = 'Aktif: ' + formatDate(activeTable.date);
+    toggleBtn.textContent = 'Close Table';
+    const total = activeTable.F + activeTable.A + activeTable.T;
+    const leader = winnerOf(activeTable);
+    document.getElementById('tableStatus').textContent = total
+      ? 'Game ke ' + total + ' · ' + (leader ? 'sementara unggul: ' + leader : 'masih imbang')
+      : 'Meja aktif siap dipakai. Score masih 0.';
+  }
+
+  function renderStatsFooter() {
+  }
+
+  function initFooterStars() {
+    const canvas = document.getElementById('rhadzor-footer-canvas');
+    const footer = document.querySelector('.rhadzor-footer');
+    if (!canvas || !footer) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    if (footerStarsState) {
+      if (footerStarsState.resizeHandler) window.removeEventListener('resize', footerStarsState.resizeHandler);
+      if (footerStarsState.rafId) cancelAnimationFrame(footerStarsState.rafId);
+    }
+
+    const state = {
+      canvas,
+      ctx,
+      stars: [],
+      width: 0,
+      height: 0,
+      dpr: Math.min(window.devicePixelRatio || 1, 2),
+      rafId: 0,
+      lastTs: 0,
+      resizeHandler: null
+    };
+
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const palette = [
+      'rgba(255,255,255,0.95)',
+      'rgba(226,232,240,0.82)',
+      'rgba(186,230,253,0.9)',
+      'rgba(125,211,252,0.88)'
+    ];
+
+    const createStar = (layer, initial = false) => {
+      const baseY = {
+        far: [8, state.height * 0.78],
+        mid: [8, state.height * 0.66],
+        near: [10, state.height * 0.54]
+      }[layer];
+      const radius = {
+        far: rand(0.5, 1.1),
+        mid: rand(0.9, 1.9),
+        near: rand(1.4, 2.8)
+      }[layer];
+      const travel = {
+        far: rand(10, 22),
+        mid: rand(24, 46),
+        near: rand(52, 96)
+      }[layer] * (0.85 + (radius * 0.12));
+      const direction = layer === 'far'
+        ? { vx: -travel, vy: -(travel * rand(0.08, 0.2)) }
+        : layer === 'mid'
+          ? { vx: travel * rand(0.42, 0.62), vy: travel * rand(0.14, 0.26) }
+          : { vx: travel * rand(0.78, 1.02), vy: travel * rand(0.28, 0.46) };
+      const spawn = (() => {
+        if (initial) return { x: rand(0, state.width), y: rand(baseY[0], Math.max(baseY[0] + 10, baseY[1])) };
+        if (layer === 'far') return { x: state.width + rand(10, 120), y: state.height + rand(4, 36) };
+        return { x: -rand(14, 90), y: -rand(6, 36) };
+      })();
+      return {
+        layer,
+        x: spawn.x,
+        y: spawn.y,
+        r: radius,
+        vx: direction.vx,
+        vy: direction.vy,
+        alpha: { far: rand(0.26, 0.46), mid: rand(0.46, 0.78), near: rand(0.58, 0.82) }[layer],
+        color: pick(palette),
+        twinkle: rand(0.6, 1.4),
+        twinkleOffset: rand(0, Math.PI * 2)
+      };
+    };
+
+    const buildStars = () => {
+      state.stars = [
+        ...Array.from({ length: 24 }, () => createStar('far', true)),
+        ...Array.from({ length: 11 }, () => createStar('mid', true)),
+        ...Array.from({ length: 3 }, () => createStar('near', true))
+      ];
+    };
+
+    const resize = () => {
+      const rect = footer.getBoundingClientRect();
+      state.width = Math.max(1, rect.width);
+      state.height = Math.max(1, rect.height);
+      state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(state.width * state.dpr);
+      canvas.height = Math.round(state.height * state.dpr);
+      canvas.style.width = state.width + 'px';
+      canvas.style.height = state.height + 'px';
+      ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+      buildStars();
+    };
+
+    const drawStar = (star, tsSec) => {
+      const twinkle = 0.84 + (Math.sin((tsSec * star.twinkle) + star.twinkleOffset) * 0.16);
+      const alpha = Math.max(0.08, Math.min(1, star.alpha * twinkle));
+      ctx.beginPath();
+      ctx.fillStyle = star.color.replace(/[\d.]+\)$/u, alpha + ')');
+      ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    const animate = (ts) => {
+      if (!state.lastTs) state.lastTs = ts;
+      const delta = Math.min(0.05, (ts - state.lastTs) / 1000);
+      state.lastTs = ts;
+      const tsSec = ts / 1000;
+
+      ctx.clearRect(0, 0, state.width, state.height);
+
+      for (let i = 0; i < state.stars.length; i += 1) {
+        const star = state.stars[i];
+        star.x += star.vx * delta;
+        star.y += star.vy * delta;
+
+        const isFar = star.layer === 'far';
+        const outOfBounds = isFar
+          ? (star.x < -(star.r * 10) || star.y < -(star.r * 10))
+          : (star.x > state.width + (star.r * 10) || star.y > state.height + (star.r * 10));
+
+        if (outOfBounds) {
+          state.stars[i] = createStar(star.layer, false);
+          continue;
+        }
+
+        drawStar(star, tsSec);
+      }
+
+      state.rafId = requestAnimationFrame(animate);
+    };
+
+    state.resizeHandler = () => resize();
+    resize();
+    window.addEventListener('resize', state.resizeHandler);
+    state.rafId = requestAnimationFrame(animate);
+    footerStarsState = state;
+  }
+
+  function renderAll() {
+    renderScoreboard();
+    renderHistory();
+    renderStatus();
+    renderStatsFooter();
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+    document.getElementById('themeToggle').textContent = theme === 'light' ? 'Mode Gelap' : 'Mode Terang';
+  }
+
+  document.getElementById('tableToggleBtn').addEventListener('click', toggleTableState);
+  document.getElementById('resetTableBtn').addEventListener('click', resetActiveTable);
+  document.getElementById('tableDate').addEventListener('change', (event) => {
+    if (!activeTable) return;
+    activeTable.date = normalizeDate(event.target.value) || todayValue();
+    saveActiveTable();
+    renderStatus();
+  });
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+  });
+  document.getElementById('historyToggleBtn').addEventListener('click', () => {
+    historyExpanded = !historyExpanded;
+    renderHistory();
+  });
+  document.getElementById('cancelEditBtn').addEventListener('click', closeEdit);
+  document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+  document.getElementById('cancelOpenTableBtn').addEventListener('click', closeOpenTableModal);
+  document.getElementById('confirmOpenTableBtn').addEventListener('click', startNewTable);
+  document.getElementById('cancelCloseTableBtn').addEventListener('click', closeCloseTableModal);
+  document.getElementById('confirmCloseTableBtn').addEventListener('click', saveClosedTable);
+  document.getElementById('togglePayerEditBtn').addEventListener('click', togglePayerEdit);
+  document.getElementById('editModalBackdrop').addEventListener('click', (event) => {
+    if (event.target.id === 'editModalBackdrop') closeEdit();
+  });
+  document.getElementById('openTableModalBackdrop').addEventListener('click', (event) => {
+    if (event.target.id === 'openTableModalBackdrop') closeOpenTableModal();
+  });
+  document.getElementById('closeTableModalBackdrop').addEventListener('click', (event) => {
+    if (event.target.id === 'closeTableModalBackdrop') closeCloseTableModal();
+  });
+
+  applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+  document.getElementById('tableDate').value = activeTable?.date || todayValue();
+  renderAll();
+  initFooterStars();
+
+  window.incrementScore = incrementScore;
+  window.openEdit = openEdit;
+  window.deleteMatch = deleteMatch;
+  window.selectBallType = selectBallType;
+  window.selectCloseResult = selectCloseResult;
+  window.selectClosePayer = selectClosePayer;
+  window.togglePayerEdit = togglePayerEdit;
+</script>
+</body>
+</html>
