@@ -932,6 +932,39 @@
     .container > .panel:first-of-type .player-card.winner-state .player-status-icon::after {
       display: none;
     }
+    .container > .panel:first-of-type .player-card.lead-burn {
+      border-color: rgba(251,146,60,0.68);
+      box-shadow:
+        0 0 0 1px rgba(255,214,122,0.24),
+        0 0 22px rgba(249,115,22,0.14),
+        0 0 46px rgba(239,68,68,0.08);
+    }
+    .container > .panel:first-of-type .player-card.lead-burn::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 18px;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 8% 10%, rgba(255,235,170,0.95) 0 2.2%, transparent 5.2%),
+        radial-gradient(circle at 22% 4%, rgba(255,149,0,0.86) 0 2.8%, transparent 6.2%),
+        radial-gradient(circle at 39% 3%, rgba(255,98,0,0.78) 0 2.2%, transparent 5.6%),
+        radial-gradient(circle at 57% 4%, rgba(255,170,52,0.84) 0 2.8%, transparent 6%),
+        radial-gradient(circle at 76% 5%, rgba(255,92,0,0.76) 0 2.2%, transparent 5.6%),
+        radial-gradient(circle at 92% 10%, rgba(255,226,142,0.92) 0 2.4%, transparent 5.6%),
+        radial-gradient(circle at 96% 28%, rgba(255,120,0,0.68) 0 2.4%, transparent 5.6%),
+        radial-gradient(circle at 96% 52%, rgba(255,154,56,0.62) 0 2.8%, transparent 6.2%),
+        radial-gradient(circle at 95% 78%, rgba(255,214,122,0.84) 0 2.6%, transparent 5.8%),
+        radial-gradient(circle at 82% 96%, rgba(255,112,0,0.68) 0 2.8%, transparent 6%),
+        radial-gradient(circle at 56% 98%, rgba(255,178,76,0.76) 0 3%, transparent 6.4%),
+        radial-gradient(circle at 28% 98%, rgba(255,126,0,0.68) 0 2.8%, transparent 6%),
+        radial-gradient(circle at 6% 86%, rgba(255,222,140,0.86) 0 2.4%, transparent 5.6%),
+        radial-gradient(circle at 4% 62%, rgba(255,115,0,0.66) 0 2.6%, transparent 5.8%),
+        radial-gradient(circle at 4% 34%, rgba(255,168,72,0.6) 0 2.6%, transparent 5.8%);
+      mix-blend-mode: screen;
+      opacity: 0.95;
+      animation: border-burn 1.2s ease-in-out infinite alternate;
+    }
     .container > .panel:first-of-type .player-status-icon {
       min-height: auto;
       margin-bottom: 10px;
@@ -972,56 +1005,6 @@
     }
     .container > .panel:first-of-type .player-score.lead-fire {
       animation: fire-flicker 0.92s ease-in-out infinite alternate;
-    }
-    .container > .panel:first-of-type .player-score .score-flame {
-      position: absolute;
-      left: 50%;
-      bottom: -12px;
-      width: 1.16em;
-      height: 1.44em;
-      transform: translateX(-50%);
-      pointer-events: none;
-      z-index: -2;
-      opacity: 0;
-    }
-    .container > .panel:first-of-type .player-score.lead-fire .score-flame {
-      opacity: 1;
-    }
-    .container > .panel:first-of-type .player-score .score-flame::before,
-    .container > .panel:first-of-type .player-score .score-flame::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      bottom: 0;
-      transform-origin: 50% 100%;
-      animation: flame-rise 0.62s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-    .container > .panel:first-of-type .player-score .score-flame::before {
-      width: 100%;
-      height: 100%;
-      transform: translateX(-50%);
-      background:
-        radial-gradient(ellipse at 50% 86%, rgba(255,246,224,0.98) 0 12%, transparent 14%),
-        radial-gradient(ellipse at 40% 62%, rgba(255,206,92,0.92) 0 20%, transparent 24%),
-        radial-gradient(ellipse at 62% 48%, rgba(255,141,31,0.9) 0 24%, transparent 30%),
-        radial-gradient(ellipse at 50% 100%, rgba(220,38,38,0.68) 0 34%, transparent 62%);
-      clip-path: polygon(50% 0%, 60% 12%, 67% 26%, 72% 42%, 76% 62%, 73% 82%, 65% 100%, 35% 100%, 27% 82%, 24% 62%, 28% 42%, 33% 26%, 40% 12%);
-      filter: blur(1px);
-      box-shadow:
-        0 0 18px rgba(249,115,22,0.4),
-        0 0 36px rgba(239,68,68,0.22);
-    }
-    .container > .panel:first-of-type .player-score .score-flame::after {
-      width: 46%;
-      height: 62%;
-      transform: translateX(-50%) translateY(1%);
-      background:
-        radial-gradient(ellipse at 50% 72%, rgba(255,255,255,0.94) 0 16%, transparent 18%),
-        radial-gradient(ellipse at 50% 100%, rgba(255,227,133,0.88) 0 34%, transparent 58%);
-      clip-path: polygon(50% 0%, 58% 16%, 63% 33%, 62% 52%, 57% 74%, 52% 100%, 48% 100%, 43% 74%, 38% 52%, 37% 33%, 42% 16%);
-      filter: blur(0.5px);
-      animation-duration: 0.44s;
     }
     .container > .panel:first-of-type .player-score.lead-heat::before,
     .container > .panel:first-of-type .player-score.lead-heat::after,
@@ -1101,10 +1084,6 @@
         0 0 102px rgba(239,68,68,0.3),
         0 0 144px rgba(220,38,38,0.18);
     }
-    .container > .panel:first-of-type .player-score.lead-4 .score-flame {
-      transform: translateX(-50%) scale(1.22);
-      bottom: -12px;
-    }
     .container > .panel:first-of-type .player-score.lead-4::before {
       color: rgba(255,237,213,0.76);
       transform: translate(-50%, -58%) scale(1.07);
@@ -1176,18 +1155,18 @@
       filter: saturate(1.08) brightness(1.04);
     }
   }
-  @keyframes flame-rise {
+  @keyframes border-burn {
     0% {
-      transform: translateX(-50%) scaleY(0.92) scaleX(0.96);
-      opacity: 0.86;
+      opacity: 0.84;
+      filter: blur(0.2px) saturate(1);
     }
     50% {
-      transform: translateX(-50%) scaleY(1.08) scaleX(1.02) rotate(-1deg);
       opacity: 1;
+      filter: blur(0.6px) saturate(1.14);
     }
     100% {
-      transform: translateX(-50%) scaleY(0.96) scaleX(1.06) rotate(1deg);
       opacity: 0.9;
+      filter: blur(0.3px) saturate(1.06);
     }
   }
 </style>
@@ -1800,11 +1779,12 @@
               : leadLevel > 0
                 ? `lead-heat lead-${leadLevel}`
                 : '';
+            const burnClass = leadLevel >= 4 ? 'lead-burn' : '';
             return `
-              <div class="player-card clickable ${player.cls} ${isWinner ? 'winner-state' : ''}" onclick="incrementScore('${key}')">
+              <div class="player-card clickable ${player.cls} ${isWinner ? 'winner-state' : ''} ${burnClass}" onclick="incrementScore('${key}')">
                 <div class="player-name">${player.name}</div>
                 <div class="player-status-icon">${ballInfo.icon}</div>
-                <div class="player-score ${leadClass}" data-score="${current[key]}">${current[key]}${leadLevel >= 4 ? '<span class="score-flame" aria-hidden="true"></span>' : ''}</div>
+                <div class="player-score ${leadClass}" data-score="${current[key]}">${current[key]}</div>
               </div>
             `;
           }).join('')}
